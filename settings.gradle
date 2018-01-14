@@ -1,0 +1,3 @@
+rootProject.name = 'minitel'
+include ':minitel-lib'
+include ':minitel-cli'

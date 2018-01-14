@@ -1,0 +1,43 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+mainClassName = 'org.jraf.minitel.cli.Main'
+
+run {
+    args((findProperty('args') ?: "").split())
+}
+
+jar {
+    baseName = 'minitel'
+    version = '1.0.0'
+}
+
+
+dependencies {
+    // Kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$versions.kotlin"
+
+    // Rx
+    implementation "io.reactivex.rxjava2:rxkotlin:$versions.rxKotlin"
+
+    // JCommender
+    implementation "com.beust:jcommander:$versions.jcommander"
+
+    // logz lib
+    implementation project(':minitel-lib')
+
+    // JUnit
+    testImplementation "junit:junit:$versions.junit"
+}
