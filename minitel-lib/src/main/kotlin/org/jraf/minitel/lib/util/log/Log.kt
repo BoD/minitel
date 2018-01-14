@@ -7,7 +7,7 @@
  *                              /___/
  * repository.
  *
- * Copyright (C) 2018 Benoit 'BoD' Lubek (BoD@JRAF.org)
+ * Copyright (C) 2017 Benoit 'BoD' Lubek (BoD@JRAF.org)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.jraf.logz.lib.util.ansi
+package org.jraf.minitel.lib.util.log
 
-const val ANSI_ESC = "\u001B["
+import java.text.SimpleDateFormat
+import java.util.Date
 
-const val ANSI_RESET_BACKGROUND_COLOR = "${ANSI_ESC}49m"
-const val ANSI_RESET_FOREGROUND_COLOR = "${ANSI_ESC}39m"
-const val ANSI_RESET_COLORS = "${ANSI_ESC}0m"
+object Log {
+    private val DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+    private fun date() = DATE_FORMAT.format(Date())
 
+    fun log(level: String, s: String) = System.out.println("${date()} $level $s")
+
+    fun logd(s: String) = log("D", s)
+    fun logw(s: String) = log("W", s)
+    fun loge(s: String) = log("E", s)
+}

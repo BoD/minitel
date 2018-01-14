@@ -1,4 +1,4 @@
-package org.jraf.logz.cli
+package org.jraf.minitel.cli
 
 import com.beust.jcommander.Parameter
 
