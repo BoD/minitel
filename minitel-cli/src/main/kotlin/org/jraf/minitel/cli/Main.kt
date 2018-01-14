@@ -2,23 +2,16 @@ package org.jraf.minitel.cli
 
 import com.beust.jcommander.JCommander
 import org.jraf.minitel.lib.util.escaping.CLEAR_SCREEN_AND_HOME
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_0
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_1
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_2
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_3
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_4
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_5
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_6
-import org.jraf.minitel.lib.util.escaping.COLOR_BACKGROUND_7
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_0
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_1
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_2
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_3
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_4
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_5
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_6
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_7
-import org.jraf.minitel.lib.util.escaping.SIZE_WIDE
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_à
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_â
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_è
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_é
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_ê
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_ë
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_î
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_ô
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_ù
+import org.jraf.minitel.lib.util.escaping.SPECIAL_CHAR_û
 import java.io.BufferedWriter
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
@@ -40,24 +33,17 @@ class Main {
             }
 
             BufferedWriter(OutputStreamWriter(FileOutputStream("/mnt/n/tmp/tmp"))).use {
-                it.write("$CLEAR_SCREEN_AND_HOME${SIZE_WIDE}")
-                it.write("${COLOR_FOREGROUND_0}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_1}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_2}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_3}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_4}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_5}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_6}Hello, World!\n")
-                it.write("${COLOR_FOREGROUND_7}Hello, World!\n")
-                it.write("\n")
-                it.write("${COLOR_BACKGROUND_0}              \n")
-                it.write("${COLOR_BACKGROUND_1}              \n")
-                it.write("${COLOR_BACKGROUND_2}              \n")
-                it.write("${COLOR_BACKGROUND_3}              \n")
-                it.write("${COLOR_BACKGROUND_4}              \n")
-                it.write("${COLOR_BACKGROUND_5}              \n")
-                it.write("${COLOR_BACKGROUND_6}              \n")
-                it.write("${COLOR_BACKGROUND_7}              \n")
+                it.write("$CLEAR_SCREEN_AND_HOME")
+                it.write("$SPECIAL_CHAR_à\n")
+                it.write("$SPECIAL_CHAR_è\n")
+                it.write("$SPECIAL_CHAR_ù\n")
+                it.write("$SPECIAL_CHAR_é\n")
+                it.write("$SPECIAL_CHAR_â\n")
+                it.write("$SPECIAL_CHAR_ê\n")
+                it.write("$SPECIAL_CHAR_î\n")
+                it.write("$SPECIAL_CHAR_ô\n")
+                it.write("$SPECIAL_CHAR_û\n")
+                it.write("$SPECIAL_CHAR_ë\n")
 
             }
         }
