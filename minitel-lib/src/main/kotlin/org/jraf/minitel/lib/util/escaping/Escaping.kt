@@ -95,7 +95,18 @@ const val SPECIAL_CHAR_E_UMLAUT = "${ACCENT_UMLAUT}e"
 
 const val MOVE_CURSOR = "\u001F"
 
-fun moveCursor(x: Int, y: Int): String = "$MOVE_CURSOR${(0x41 + x).toChar()}${(0x41 + y).toChar()}"
+fun moveCursor(x: Int, y: Int): String = "$MOVE_CURSOR${(0x41 + y).toChar()}${(0x41 + x).toChar()}"
 
 const val SCREEN_WIDTH = 40
 const val SCREEN_HEIGHT = 24
+
+fun String.escapeAccents() = replace("à", SPECIAL_CHAR_A_GRAVE)
+    .replace("è", SPECIAL_CHAR_E_GRAVE)
+    .replace("ù", SPECIAL_CHAR_U_GRAVE)
+    .replace("é", SPECIAL_CHAR_E_ACUTE)
+    .replace("â", SPECIAL_CHAR_A_CIRCUMFLEX)
+    .replace("ê", SPECIAL_CHAR_E_CIRCUMFLEX)
+    .replace("î", SPECIAL_CHAR_I_CIRCUMFLEX)
+    .replace("ô", SPECIAL_CHAR_O_CIRCUMFLEX)
+    .replace("û", SPECIAL_CHAR_U_CIRCUMFLEX)
+    .replace("ü", SPECIAL_CHAR_E_UMLAUT)

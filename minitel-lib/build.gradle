@@ -1,14 +1,35 @@
-apply plugin: 'java'
-apply plugin: 'kotlin'
+description = 'minitel-lib'
 
-sourceCompatibility = 1.8
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+apply plugin: 'maven-publish'
 
 compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = '1.8'
 }
 
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+javadoc.failOnError = false
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId project.description
+
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
 }
 
 dependencies {
@@ -17,7 +38,6 @@ dependencies {
 
     // Rx
     implementation "io.reactivex.rxjava2:rxkotlin:$versions.rxKotlin"
-
-    // JUnit
-    testImplementation "junit:junit:$versions.junit"
 }
+
+// Use "./gradlew publishToMavenLocal" to deploy the artifacts to your local maven repository
