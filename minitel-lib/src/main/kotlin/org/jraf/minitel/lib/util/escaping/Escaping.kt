@@ -27,13 +27,19 @@ package org.jraf.minitel.lib.util.escaping
 
 import org.jraf.minitel.lib.util.color.AwtColor
 import org.jraf.minitel.lib.util.color.rgbToHsl
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
+import org.xml.sax.InputSource
 import java.awt.Color
+import java.io.StringReader
+import javax.xml.parsers.DocumentBuilderFactory
 
 // See http://millevaches.hydraule.org/info/minitel/specs/codes.htm
 
 const val CLEAR_SCREEN_AND_HOME = "\u000C"
 
-const val ESC = "\u001B"
+const val ESC = '\u001B'
 
 const val SIZE_NORMAL = "$ESC\u004C"
 const val SIZE_TALL = "$ESC\u004D"
@@ -150,3 +156,53 @@ fun String.escapeAccents() = replace("à", SPECIAL_CHAR_A_GRAVE)
     .replace("ô", SPECIAL_CHAR_O_CIRCUMFLEX)
     .replace("û", SPECIAL_CHAR_U_CIRCUMFLEX)
     .replace("ü", SPECIAL_CHAR_E_UMLAUT)
+
+fun String.escapeSpecialChars() = replace("฿", " btc")
+    .replace("€", " eur")
+
+fun String.escapeHtml(): String {
+    val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+    val document = documentBuilder.parse(InputSource(StringReader("<root>$this</root>")))
+    return escapeHtml(document.childNodes)
+}
+
+private fun escapeHtml(nodeList: NodeList): String {
+    var res = ""
+    for (i in 0 until nodeList.length) {
+        val node = nodeList.item(i)
+        res += when (node.nodeType) {
+            Node.TEXT_NODE -> node.textContent
+
+            else -> {
+                val element = node as Element
+                when (node.nodeName) {
+                    "font" -> {
+                        val color = element.getAttribute("color")
+                        colorForeground(AwtColor.decode(color)) + escapeHtml(node.childNodes) + COLOR_FOREGROUND_7
+                    }
+
+                    else -> escapeHtml(node.childNodes)
+                }
+            }
+        }
+    }
+    return res
+}
+
+val String.textOnlyLength: Int
+    get() {
+        var res = 0
+        var isEscape = false
+        for (c in this) {
+            if (c == ESC) {
+                isEscape = true
+                continue
+            } else if (isEscape) {
+                isEscape = false
+            } else {
+                isEscape = false
+                res++
+            }
+        }
+        return res
+    }
