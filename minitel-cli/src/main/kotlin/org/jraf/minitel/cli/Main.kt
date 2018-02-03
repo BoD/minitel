@@ -6,6 +6,7 @@ import org.jraf.libticker.message.BasicMessageQueue
 import org.jraf.libticker.plugin.api.PluginConfiguration
 import org.jraf.libticker.plugin.manager.PluginManager
 import org.jraf.minitel.lib.util.escaping.CLEAR_SCREEN_AND_HOME
+import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_7
 import org.jraf.minitel.lib.util.escaping.HIDE_CURSOR
 import org.jraf.minitel.lib.util.escaping.SCREEN_HEIGHT_TALL
 import org.jraf.minitel.lib.util.escaping.SCREEN_WIDTH_TALL
@@ -38,14 +39,14 @@ fun main(av: Array<String>) {
     val messageQueue = BasicMessageQueue(40)
     PluginManager(messageQueue)
         .addPlugins(
-//            "org.jraf.libticker.plugin.datetime.DateTimePlugin" to PluginConfiguration().apply {
-//                put("dateLocale", "fr")
-//            },
-//            "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
-//            "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
-//                put("apiKey", arguments.weatherApiKey)
-//            },
-//            "org.jraf.libticker.plugin.btc.BtcPlugin" to null,
+            "org.jraf.libticker.plugin.datetime.DateTimePlugin" to PluginConfiguration().apply {
+                put("dateLocale", "fr")
+            },
+            "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
+            "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
+                put("apiKey", arguments.weatherApiKey)
+            },
+            "org.jraf.libticker.plugin.btc.BtcPlugin" to null,
             "org.jraf.libticker.plugin.twitter.TwitterPlugin" to PluginConfiguration().apply {
                 put("oAuthConsumerKey", arguments.twitterOAuthConsumerKey)
                 put("oAuthConsumerSecret", arguments.twitterOAuthConsumerSecret)
@@ -60,20 +61,22 @@ fun main(av: Array<String>) {
 
         while (true) {
             var message = messageQueue.next
+
             if (message != null) {
-                it += CLEAR_SCREEN_AND_HOME
+                println(message)
+
                 it += HIDE_CURSOR
+                it += CLEAR_SCREEN_AND_HOME
+
+                message = message.escapeHtml(COLOR_FOREGROUND_7, SIZE_TALL)
 
                 message = message.escapeSpecialChars()
-
-                message = message.escapeHtml()
 
                 message = message.escapeAccents()
 
                 message = message.wrap(SCREEN_WIDTH_TALL)
 
                 val linesCount = message.lineCount(SCREEN_WIDTH_TALL)
-                println(linesCount)
                 val y = SCREEN_HEIGHT_TALL - linesCount + 1
                 it += moveCursor(0, y)
 
@@ -85,7 +88,7 @@ fun main(av: Array<String>) {
 
                 it.flush()
             }
-            Thread.sleep(TimeUnit.SECONDS.toMillis(5))
+            Thread.sleep(TimeUnit.SECONDS.toMillis(12))
 //            Thread.sleep(TimeUnit.SECONDS.toMillis(4))
 
         }

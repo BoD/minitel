@@ -167,14 +167,26 @@ fun String.escapeAccents() = replace("à", SPECIAL_CHAR_A_GRAVE)
 
 fun String.escapeSpecialChars() = replace("฿", " btc")
     .replace("€", " eur")
+    .replace("☀", "*")
+    .replace("\uD83C\uDF19", "(")
+    .replace("☂", "///")
+    .replace("☃", "oo")
+    .replace("\uD83D\uDCA8", ">>")
+    .replace("\uD83C\uDF2B", "##")
+    .replace("☁", "#")
+    .replace("\uD83C\uDF24", "*#")
+    .replace("☁\uD83C\uDF19", "#(")
+    .replace("▾", "min :")
+    .replace("▴", "max :")
+    .replace("º", "$ACCENT\u0030")
 
-fun String.escapeHtml(): String {
+fun String.escapeHtml(defaultColor: String, defaultSize: String): String {
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
     val document = documentBuilder.parse(InputSource(StringReader("<root>$this</root>")))
-    return escapeHtml(document.childNodes)
+    return escapeHtml(document.childNodes, defaultColor, defaultSize)
 }
 
-private fun escapeHtml(nodeList: NodeList): String {
+private fun escapeHtml(nodeList: NodeList, defaultColor: String, defaultSize: String): String {
     var res = ""
     for (i in 0 until nodeList.length) {
         val node = nodeList.item(i)
@@ -186,10 +198,22 @@ private fun escapeHtml(nodeList: NodeList): String {
                 when (node.nodeName) {
                     "font" -> {
                         val color = element.getAttribute("color")
-                        colorForeground(AwtColor.decode(color)) + escapeHtml(node.childNodes) + COLOR_FOREGROUND_7
+                        colorForeground(AwtColor.decode(color)) + escapeHtml(
+                            node.childNodes,
+                            defaultColor,
+                            defaultSize
+                        ) + defaultColor
                     }
 
-                    else -> escapeHtml(node.childNodes)
+                    "small" -> {
+                        SIZE_NORMAL + escapeHtml(
+                            node.childNodes,
+                            defaultColor,
+                            defaultSize
+                        ) + defaultSize
+                    }
+
+                    else -> escapeHtml(node.childNodes, defaultColor, defaultSize)
                 }
             }
         }
