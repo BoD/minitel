@@ -25,6 +25,12 @@
 
 package org.jraf.minitel.lib.util.escaping
 
+import org.jraf.minitel.lib.util.color.AwtColor
+import org.jraf.minitel.lib.util.color.rgbToHsl
+import java.awt.Color
+
+// See http://millevaches.hydraule.org/info/minitel/specs/codes.htm
+
 const val CLEAR_SCREEN_AND_HOME = "\u000C"
 
 const val ESC = "\u001B"
@@ -52,6 +58,37 @@ const val COLOR_FOREGROUND_4 = COLOR_FOREGROUND_GREEN
 const val COLOR_FOREGROUND_5 = COLOR_FOREGROUND_CYAN
 const val COLOR_FOREGROUND_6 = COLOR_FOREGROUND_YELLOW
 const val COLOR_FOREGROUND_7 = COLOR_FOREGROUND_WHITE
+
+fun colorForeground(lightness: Float): String {
+    return when {
+        lightness < 1F / 8F -> COLOR_FOREGROUND_0
+        lightness < 2F / 8F -> COLOR_FOREGROUND_1
+        lightness < 3F / 8F -> COLOR_FOREGROUND_2
+        lightness < 4F / 8F -> COLOR_FOREGROUND_3
+        lightness < 5F / 8F -> COLOR_FOREGROUND_4
+        lightness < 6F / 8F -> COLOR_FOREGROUND_5
+        lightness < 7F / 8F -> COLOR_FOREGROUND_6
+        else -> COLOR_FOREGROUND_7
+    }
+}
+
+fun colorForeground(color: AwtColor) = colorForeground(rgbToHsl(color).third)
+
+fun colorBackground(lightness: Float): String {
+    return when {
+        lightness < 1F / 8F -> COLOR_BACKGROUND_0
+        lightness < 2F / 8F -> COLOR_BACKGROUND_1
+        lightness < 3F / 8F -> COLOR_BACKGROUND_2
+        lightness < 4F / 8F -> COLOR_BACKGROUND_3
+        lightness < 5F / 8F -> COLOR_BACKGROUND_4
+        lightness < 6F / 8F -> COLOR_BACKGROUND_5
+        lightness < 7F / 8F -> COLOR_BACKGROUND_6
+        else -> COLOR_BACKGROUND_7
+    }
+}
+
+fun colorBackground(color: Color) = colorBackground(rgbToHsl(color).third)
+
 
 const val COLOR_BACKGROUND_BLACK = "$ESC\u0050"
 const val COLOR_BACKGROUND_RED = "$ESC\u0051"
@@ -94,6 +131,9 @@ const val SPECIAL_CHAR_E_UMLAUT = "${ACCENT_UMLAUT}e"
 
 
 const val MOVE_CURSOR = "\u001F"
+const val SHOW_CURSOR = "\u0011"
+const val HIDE_CURSOR = "\u0014"
+
 
 fun moveCursor(x: Int, y: Int): String = "$MOVE_CURSOR${(0x41 + y).toChar()}${(0x41 + x).toChar()}"
 
