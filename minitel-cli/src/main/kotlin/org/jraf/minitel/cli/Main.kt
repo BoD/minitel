@@ -7,11 +7,9 @@ import org.jraf.libticker.plugin.api.PluginConfiguration
 import org.jraf.libticker.plugin.manager.PluginManager
 import org.jraf.minitel.lib.util.escaping.CLEAR_SCREEN_AND_HOME
 import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_7
+import org.jraf.minitel.lib.util.escaping.CharacterSize
 import org.jraf.minitel.lib.util.escaping.HIDE_CURSOR
-import org.jraf.minitel.lib.util.escaping.SCREEN_HEIGHT_TALL
-import org.jraf.minitel.lib.util.escaping.SCREEN_WIDTH_TALL
 import org.jraf.minitel.lib.util.escaping.SHOW_CURSOR
-import org.jraf.minitel.lib.util.escaping.SIZE_TALL
 import org.jraf.minitel.lib.util.escaping.escapeAccents
 import org.jraf.minitel.lib.util.escaping.escapeHtml
 import org.jraf.minitel.lib.util.escaping.escapeSpecialChars
@@ -68,19 +66,25 @@ fun main(av: Array<String>) {
                 it += HIDE_CURSOR
                 it += CLEAR_SCREEN_AND_HOME
 
-                message = message.escapeHtml(COLOR_FOREGROUND_7, SIZE_TALL)
+                val textOnlyLength = message.escapeHtml()
+                    .escapeSpecialChars()
+                    .escapeAccents()
+                    .textOnlyLength
 
-                message = message.escapeSpecialChars()
+                val characterSize =
+                    if (textOnlyLength < CharacterSize.DOUBLE.screenWidth) CharacterSize.DOUBLE else CharacterSize.TALL
 
-                message = message.escapeAccents()
+                message = message.escapeHtml(COLOR_FOREGROUND_7, characterSize.characterSizeEscape)
+                    .escapeSpecialChars()
+                    .escapeAccents()
 
-                message = message.wrap(SCREEN_WIDTH_TALL)
+                message = message.wrap(characterSize.screenWidth)
 
-                val linesCount = message.lineCount(SCREEN_WIDTH_TALL)
-                val y = SCREEN_HEIGHT_TALL - linesCount + 1
-                it += moveCursor(0, y)
+                val linesCount = message.lineCount(characterSize.screenWidth)
+                val y = characterSize.screenHeight - linesCount + 1
+                it += moveCursor(1, y)
 
-                it += SIZE_TALL
+                it += characterSize.characterSizeEscape
 
                 it += message
 

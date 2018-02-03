@@ -179,8 +179,10 @@ fun String.escapeSpecialChars() = replace("฿", " btc")
     .replace("▾", "min :")
     .replace("▴", "max :")
     .replace("º", "$ACCENT\u0030")
+    .replace("’", "'")
+    .replace("…", "...")
 
-fun String.escapeHtml(defaultColor: String, defaultSize: String): String {
+fun String.escapeHtml(defaultColor: String = COLOR_FOREGROUND_7, defaultSize: String = SIZE_TALL): String {
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
     val document = documentBuilder.parse(InputSource(StringReader("<root>$this</root>")))
     return escapeHtml(document.childNodes, defaultColor, defaultSize)
