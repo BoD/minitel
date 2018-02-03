@@ -7,7 +7,8 @@ import org.jraf.libticker.plugin.api.PluginConfiguration
 import org.jraf.libticker.plugin.manager.PluginManager
 import org.jraf.minitel.lib.util.escaping.CLEAR_SCREEN_AND_HOME
 import org.jraf.minitel.lib.util.escaping.HIDE_CURSOR
-import org.jraf.minitel.lib.util.escaping.SCREEN_WIDTH
+import org.jraf.minitel.lib.util.escaping.SCREEN_HEIGHT_TALL
+import org.jraf.minitel.lib.util.escaping.SCREEN_WIDTH_TALL
 import org.jraf.minitel.lib.util.escaping.SHOW_CURSOR
 import org.jraf.minitel.lib.util.escaping.SIZE_TALL
 import org.jraf.minitel.lib.util.escaping.escapeAccents
@@ -20,6 +21,7 @@ import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.Writer
 import java.util.concurrent.TimeUnit
+import java.util.regex.Pattern
 
 fun main(av: Array<String>) {
     val arguments = Arguments()
@@ -36,9 +38,9 @@ fun main(av: Array<String>) {
     val messageQueue = BasicMessageQueue(40)
     PluginManager(messageQueue)
         .addPlugins(
-            "org.jraf.libticker.plugin.datetime.DateTimePlugin" to PluginConfiguration().apply {
-                put("dateLocale", "fr")
-            },
+//            "org.jraf.libticker.plugin.datetime.DateTimePlugin" to PluginConfiguration().apply {
+//                put("dateLocale", "fr")
+//            },
 //            "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
 //            "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
 //                put("apiKey", arguments.weatherApiKey)
@@ -66,11 +68,18 @@ fun main(av: Array<String>) {
 
                 message = message.escapeHtml()
 
-                message = message.wrap(SCREEN_WIDTH)
+                message = message.escapeAccents()
 
-                it += moveCursor(0, 1)
+                message = message.wrap(SCREEN_WIDTH_TALL)
 
-                it += SIZE_TALL + message.escapeAccents()
+                val linesCount = message.lineCount(SCREEN_WIDTH_TALL)
+                println(linesCount)
+                val y = SCREEN_HEIGHT_TALL - linesCount + 1
+                it += moveCursor(0, y)
+
+                it += SIZE_TALL
+
+                it += message
 
                 it += SHOW_CURSOR
 
@@ -96,6 +105,19 @@ private fun String.wrap(wrapLength: Int): String {
         for (i in 1..(wrapLength - line.textOnlyLength) / 2) paddedLine = ' ' + paddedLine
         res += paddedLine
         if (paddedLine.textOnlyLength < wrapLength && index < split.lastIndex) res += "\n\n"
+    }
+    return res
+}
+
+private fun String.lineCount(maxLineLength: Int): Int {
+    val split = split(Pattern.compile("\n+"))
+    var res = 0
+    for (s in split) {
+        if (s.textOnlyLength > maxLineLength) {
+            res += 2
+        } else {
+            res++
+        }
     }
     return res
 }

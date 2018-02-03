@@ -119,10 +119,11 @@ const val UNDERLINE_START = "$ESC\u005A"
 const val UNDERLINE_END = "$ESC\u0059"
 
 
-const val ACCENT_GRAVE = "\u0019\u0041"
-const val ACCENT_ACUTE = "\u0019\u0042"
-const val ACCENT_CIRCUMFLEX = "\u0019\u0043"
-const val ACCENT_UMLAUT = "\u0019\u0048"
+private const val ACCENT = '\u0019'
+private const val ACCENT_GRAVE = "$ACCENT\u0041"
+private const val ACCENT_ACUTE = "$ACCENT\u0042"
+private const val ACCENT_CIRCUMFLEX = "$ACCENT\u0043"
+private const val ACCENT_UMLAUT = "$ACCENT\u0048"
 
 const val SPECIAL_CHAR_A_GRAVE = "${ACCENT_GRAVE}a"
 const val SPECIAL_CHAR_E_GRAVE = "${ACCENT_GRAVE}e"
@@ -143,8 +144,15 @@ const val HIDE_CURSOR = "\u0014"
 
 fun moveCursor(x: Int, y: Int): String = "$MOVE_CURSOR${(0x41 + y).toChar()}${(0x41 + x).toChar()}"
 
-const val SCREEN_WIDTH = 40
-const val SCREEN_HEIGHT = 24
+const val SCREEN_WIDTH_NORMAL = 40
+const val SCREEN_WIDTH_TALL = SCREEN_WIDTH_NORMAL
+const val SCREEN_WIDTH_WIDE = SCREEN_WIDTH_NORMAL / 2
+const val SCREEN_WIDTH_DOUBLE = SCREEN_WIDTH_WIDE
+
+const val SCREEN_HEIGHT_NORMAL = 24
+const val SCREEN_HEIGHT_TALL = SCREEN_HEIGHT_NORMAL / 2
+const val SCREEN_HEIGHT_WIDE = SCREEN_HEIGHT_NORMAL
+const val SCREEN_HEIGHT_DOUBLE = SCREEN_HEIGHT_TALL
 
 fun String.escapeAccents() = replace("à", SPECIAL_CHAR_A_GRAVE)
     .replace("è", SPECIAL_CHAR_E_GRAVE)
@@ -192,16 +200,16 @@ private fun escapeHtml(nodeList: NodeList): String {
 val String.textOnlyLength: Int
     get() {
         var res = 0
-        var isEscape = false
-        for (c in this) {
-            if (c == ESC) {
-                isEscape = true
-                continue
-            } else if (isEscape) {
-                isEscape = false
-            } else {
-                isEscape = false
-                res++
+        var i = 0
+        while (i < length) {
+            val c = this[i]
+            when (c) {
+                ESC -> i += 2
+                ACCENT -> i += 2
+                else -> {
+                    res++
+                    i++
+                }
             }
         }
         return res
