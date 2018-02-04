@@ -37,14 +37,19 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 // See http://millevaches.hydraule.org/info/minitel/specs/codes.htm
 
-const val CLEAR_SCREEN_AND_HOME = "\u000C"
+const val CLEAR_SCREEN_AND_HOME = '\u000C'
 
 const val ESC = '\u001B'
 
-const val SIZE_NORMAL = "$ESC\u004C"
-const val SIZE_TALL = "$ESC\u004D"
-const val SIZE_WIDE = "$ESC\u004E"
-const val SIZE_DOUBLE = "$ESC\u004F"
+private const val PARAM_SIZE_NORMAL = 'L'
+private const val PARAM_SIZE_TALL = 'M'
+private const val PARAM_SIZE_WIDE = 'N'
+private const val PARAM_SIZE_DOUBLE = 'O'
+
+const val SIZE_NORMAL = "$ESC$PARAM_SIZE_NORMAL"
+const val SIZE_TALL = "$ESC$PARAM_SIZE_TALL"
+const val SIZE_WIDE = "$ESC$PARAM_SIZE_WIDE"
+const val SIZE_DOUBLE = "$ESC$PARAM_SIZE_DOUBLE"
 
 
 const val COLOR_FOREGROUND_BLACK = "$ESC\u0040"
@@ -119,7 +124,7 @@ const val UNDERLINE_START = "$ESC\u005A"
 const val UNDERLINE_END = "$ESC\u0059"
 
 
-private const val ACCENT = '\u0019'
+const val ACCENT = '\u0019'
 private const val ACCENT_GRAVE = "$ACCENT\u0041"
 private const val ACCENT_ACUTE = "$ACCENT\u0042"
 private const val ACCENT_CIRCUMFLEX = "$ACCENT\u0043"
@@ -137,9 +142,9 @@ const val SPECIAL_CHAR_U_CIRCUMFLEX = "${ACCENT_CIRCUMFLEX}u"
 const val SPECIAL_CHAR_E_UMLAUT = "${ACCENT_UMLAUT}e"
 
 
-const val MOVE_CURSOR = "\u001F"
-const val SHOW_CURSOR = "\u0011"
-const val HIDE_CURSOR = "\u0014"
+const val MOVE_CURSOR = '\u001F'
+const val SHOW_CURSOR = '\u0011'
+const val HIDE_CURSOR = '\u0014'
 
 
 fun moveCursor(x: Int, y: Int): String = "$MOVE_CURSOR${(0x41 + y).toChar()}${(0x41 + x).toChar()}"
@@ -181,10 +186,11 @@ fun String.escapeSpecialChars() = replace("฿", " btc")
     .replace("º", "$ACCENT\u0030")
     .replace("’", "'")
     .replace("…", "...")
+    .replace("”", "\"")
 
 fun String.escapeHtml(defaultColor: String = COLOR_FOREGROUND_7, defaultSize: String = SIZE_TALL): String {
     val documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-    val document = documentBuilder.parse(InputSource(StringReader("<root>$this</root>")))
+    val document = documentBuilder.parse(InputSource(StringReader("<root>${this.replace("&", "&amp;")}</root>")))
     return escapeHtml(document.childNodes, defaultColor, defaultSize)
 }
 
@@ -223,20 +229,33 @@ private fun escapeHtml(nodeList: NodeList, defaultColor: String, defaultSize: St
     return res
 }
 
-val String.textOnlyLength: Int
-    get() {
-        var res = 0
-        var i = 0
-        while (i < length) {
-            val c = this[i]
-            when (c) {
-                ESC -> i += 2
-                ACCENT -> i += 2
-                else -> {
-                    res++
-                    i++
+fun String.getWidth(baseCharacterSize: CharacterSize): Int {
+    var res = 0
+    var i = 0
+    var curCharWidth = baseCharacterSize.characterWidth
+    while (i < length) {
+        val c = this[i]
+        when (c) {
+            ESC -> {
+                when (this[i + 1]) {
+                    PARAM_SIZE_NORMAL -> curCharWidth = CharacterSize.NORMAL.characterWidth
+                    PARAM_SIZE_TALL -> curCharWidth = CharacterSize.TALL.characterWidth
+                    PARAM_SIZE_WIDE -> curCharWidth = CharacterSize.WIDE.characterWidth
+                    PARAM_SIZE_DOUBLE -> curCharWidth = CharacterSize.DOUBLE.characterWidth
                 }
+                i += 2
+            }
+
+            ACCENT -> {
+                res += curCharWidth
+                i += 2
+            }
+
+            else -> {
+                res += curCharWidth
+                i++
             }
         }
-        return res
     }
+    return res
+}
