@@ -84,7 +84,6 @@ fun main(av: Array<String>) {
             var message = messageQueue.next
 
             if (message != null) {
-                println(message)
 
                 it += HIDE_CURSOR
                 it += CLEAR_SCREEN_AND_HOME
