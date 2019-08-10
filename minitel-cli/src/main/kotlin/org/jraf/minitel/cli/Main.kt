@@ -26,21 +26,26 @@
 package org.jraf.minitel.cli
 
 import com.beust.jcommander.JCommander
+import org.jraf.klibminitel.escaping.ACCENT
+import org.jraf.klibminitel.escaping.CLEAR_SCREEN_AND_HOME
+import org.jraf.klibminitel.escaping.COLOR_FOREGROUND_7
+import org.jraf.klibminitel.escaping.CharacterSize
+import org.jraf.klibminitel.escaping.ESC
+import org.jraf.klibminitel.escaping.HIDE_CURSOR
+import org.jraf.klibminitel.escaping.SHOW_CURSOR
+import org.jraf.klibminitel.escaping.escapeAccents
+import org.jraf.klibminitel.escaping.escapeHtml
+import org.jraf.klibminitel.escaping.escapeSpecialChars
+import org.jraf.klibminitel.escaping.getWidth
+import org.jraf.klibminitel.escaping.moveCursor
 import org.jraf.libticker.message.BasicMessageQueue
 import org.jraf.libticker.plugin.api.PluginConfiguration
+import org.jraf.libticker.plugin.btc.BtcPluginDescriptor
+import org.jraf.libticker.plugin.datetime.DateTimePluginDescriptor
+import org.jraf.libticker.plugin.frc.FrcPluginDescriptor
 import org.jraf.libticker.plugin.manager.PluginManager
-import org.jraf.minitel.lib.util.escaping.ACCENT
-import org.jraf.minitel.lib.util.escaping.CLEAR_SCREEN_AND_HOME
-import org.jraf.minitel.lib.util.escaping.COLOR_FOREGROUND_7
-import org.jraf.minitel.lib.util.escaping.CharacterSize
-import org.jraf.minitel.lib.util.escaping.ESC
-import org.jraf.minitel.lib.util.escaping.HIDE_CURSOR
-import org.jraf.minitel.lib.util.escaping.SHOW_CURSOR
-import org.jraf.minitel.lib.util.escaping.escapeAccents
-import org.jraf.minitel.lib.util.escaping.escapeHtml
-import org.jraf.minitel.lib.util.escaping.escapeSpecialChars
-import org.jraf.minitel.lib.util.escaping.getWidth
-import org.jraf.minitel.lib.util.escaping.moveCursor
+import org.jraf.libticker.plugin.twitter.TwitterPluginDescriptor
+import org.jraf.libticker.plugin.weather.WeatherPluginDescriptor
 import java.io.BufferedWriter
 import java.io.Writer
 import java.util.concurrent.TimeUnit
@@ -59,29 +64,44 @@ fun main(av: Array<String>) {
     }
 
     val messageQueue = BasicMessageQueue(50)
-    PluginManager(messageQueue)
-        .addPlugins(
-            "org.jraf.libticker.plugin.datetime.DateTimePlugin" to PluginConfiguration().apply {
-                put("dateLocale", "fr")
-            },
-            "org.jraf.libticker.plugin.frc.FrcPlugin" to null,
-            "org.jraf.libticker.plugin.weather.WeatherPlugin" to PluginConfiguration().apply {
-                put("apiKey", arguments.weatherApiKey)
-                put("formattingLocale", "fr")
-            },
-            "org.jraf.libticker.plugin.btc.BtcPlugin" to null,
-            "org.jraf.libticker.plugin.twitter.TwitterPlugin" to PluginConfiguration().apply {
-                put("oAuthConsumerKey", arguments.twitterOAuthConsumerKey)
-                put("oAuthConsumerSecret", arguments.twitterOAuthConsumerSecret)
-                put("oAuthAccessToken", arguments.twitterOAuthAccessToken)
-                put("oAuthAccessTokenSecret", arguments.twitterOAuthAccessTokenSecret)
-            }
+    PluginManager(messageQueue).apply {
+        managePlugin(
+            "org.jraf.libticker.plugin.datetime.DateTimePlugin", PluginConfiguration(
+                DateTimePluginDescriptor.KEY_DATE_LOCALE to "fr"
+            )
         )
-        .start()
+        managePlugin(
+            "org.jraf.libticker.plugin.frc.FrcPlugin", PluginConfiguration(
+                FrcPluginDescriptor.KEY_PERIOD to 5
+            )
+        )
+        managePlugin(
+            "org.jraf.libticker.plugin.weather.WeatherPlugin", PluginConfiguration(
+                WeatherPluginDescriptor.KEY_API_KEY to arguments.weatherApiKey,
+                WeatherPluginDescriptor.KEY_FORMATTING_LOCALE to "fr",
+                WeatherPluginDescriptor.KEY_PERIOD to 5
+            )
+        )
+        managePlugin(
+            "org.jraf.libticker.plugin.btc.BtcPlugin", PluginConfiguration(
+                BtcPluginDescriptor.KEY_PERIOD to 5
+            )
+        )
+
+        managePlugin(
+            "org.jraf.libticker.plugin.twitter.TwitterPlugin", PluginConfiguration(
+                TwitterPluginDescriptor.KEY_OAUTH_CONSUMER_KEY to arguments.twitterOAuthConsumerKey,
+                TwitterPluginDescriptor.KEY_OAUTH_CONSUMER_SECRET to arguments.twitterOAuthConsumerSecret,
+                TwitterPluginDescriptor.KEY_OAUTH_ACCESS_TOKEN to arguments.twitterOAuthAccessToken,
+                TwitterPluginDescriptor.KEY_OAUTH_ACCESS_TOKEN_SECRET to arguments.twitterOAuthAccessTokenSecret,
+                TwitterPluginDescriptor.KEY_SEARCH to "list:bod/news"
+            )
+        )
+    }
 
     BufferedWriter(System.out.writer()).use {
         while (true) {
-            var message = messageQueue.next
+            var message = messageQueue.getNext()?.textFormatted
 
             if (message != null) {
 

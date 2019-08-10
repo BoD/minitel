@@ -10,9 +10,10 @@ buildscript {
         rxJava = '2.1.7'
         rxKotlin = '2.2.0'
         jcommander = '1.71'
-        libticker = '1.0.0'
+        libticker = '1.4.0'
         slf4j = '1.7.25'
         apacheCommonsText = '1.2'
+        klibminitel = '1.0.0'
     }
 
     repositories {
